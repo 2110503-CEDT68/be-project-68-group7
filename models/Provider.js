@@ -38,12 +38,11 @@ const providerSchema = new mongoose.Schema({
     toObject: { virtuals: true }
 });
 
-providerSchema.virtual('appointments', {
-    ref: 'Appointment',
+providerSchema.virtual('bookings', {
+    ref: 'Booking',
     localField: '_id',
     foreignField: 'provider',
     justOne: false
 });
 
-module.exports = mongoose.model('provider', providerSchema);
-
+module.exports = mongoose.model('Provider', providerSchema);
