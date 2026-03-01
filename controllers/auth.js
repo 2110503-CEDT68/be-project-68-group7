@@ -7,10 +7,12 @@ exports.register = async (req, res) => {
   try {
     const { name, email, telephone, password, role } = req.body;
 
-    // const existingUser = await User.findOne({ email });
-    // if (existingUser) {
-    //   return res.status(400).json({ success: false, message: 'User already exists' });
-    // }
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'User already exists' });
+    }
 
     const user = await User.create({
       name,
@@ -20,7 +22,7 @@ exports.register = async (req, res) => {
       role,
     });
 
-    sendTokenResponse(user, 201, res);
+    sentTokenResponse(user, 201, res);
   } catch (err) {
     res.status(400).json({ success: false });
     console.log(err.stack);
@@ -30,32 +32,35 @@ exports.register = async (req, res) => {
 //@desc    Login user
 //@route   POST /api/users/login
 //@access  Public
-exports.login = async (req, res, next) => {
+exports.login = async (req, res) => {
   try {
-      const { email, password } = req.body;
+    const { email, password } = req.body;
 
-      //Validate email & password
-      if (!email || !password) {
-          return res.status(400).json({ success: false, msg: 'Please provide an email and password' });
-      }
+    // Validate email & password
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, msg: 'Please provide an email and password' });
+    }
 
-      //Check for user
-      const user = await User.findOne({ email }).select('+password');
-      if (!user) {
-          return res.status(400).json({ success: false, msg: 'Invalid credentials' });
-      }
+    // Check for user
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, msg: 'Invalid credentials' });
+    }
 
-      //Check if password matches
-      const isMatch = await user.matchPassword(password);
-      if (!isMatch) {
-          return res.status(401).json({ success: false, msg: 'Invalid credentials' });
-      }
+    // Check if password matches
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res
+        .status(401)
+        .json({ success: false, msg: 'Invalid credentials' });
+    }
 
-      //Create token
-      // const token = user.getSignedJwtToken();
-      // res.status(200).json({ success: true, token });
-      sentTokenResponse(user, 200, res);
-
+    // Create token & send
+    sentTokenResponse(user, 200, res);
   } catch (err) {
       res.status(401).json({ success: false, msg: 'Cannot convert email or password to string' });
   }
@@ -78,10 +83,15 @@ exports.logout = async (req, res) => {
 //@desc    Get current logged in user
 //@route   POST /api/v1/auth/me
 //access   Private
-exports.getMe = async (req, res, next) => {
+exports.getMe = async (req, res) => {
   try {
-      const user = await User.findById(req.user.id);
-      res.status(200).json({ success: true, data: user });
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+    res.status(200).json({ success: true, data: user });
   } catch (err) {
       res.status(400).json({ success: false });
   }
@@ -111,7 +121,9 @@ exports.update = async (req, res) => {
     );
 
     if (!user) {
-      return res.status(404).json({ success: false });
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
     }
 
     res.status(200).json({
