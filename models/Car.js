@@ -21,11 +21,15 @@ const carSchema = new mongoose.Schema({
     },
     year: {
         type: Number,
-        required: [true, 'Please add the manufacturing year']
+        required: [true, 'Please add the manufacturing year'],
+        min: [1980, 'Year must be 1980 or later'],
+        max: [new Date().getFullYear() + 1, 'Year cannot be in the far future']
     },
     color: {
         type: String,
-        required: [true, 'Please add the car color']
+        required: [true, 'Please add the car color'],
+        trim: true,
+        maxlength: [30, 'Color cannot be more than 30 characters']
     },
     transmission: {
         type: String,
@@ -37,37 +41,27 @@ const carSchema = new mongoose.Schema({
         enum: ['Gasoline', 'Diesel', 'Electric', 'Hybrid'],
         default: 'Gasoline'
     },
+    available: {
+        type: Boolean,
+        default: true
+    },
     provider: {
         type: mongoose.Schema.ObjectId,
         ref: 'Provider',
-        required: true
+        required: true,
     }
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-    timestamps: true // Automatically creates createdAt and updatedAt fields
+    timestamps: true
 });
 
-// Virtual populate to see all appointments for this specific car
-carSchema.virtual('appointments', {
-    ref: 'Appointment',
+// Virtual populate to see all bookings for this specific car
+carSchema.virtual('bookings', {
+    ref: 'Booking',
     localField: '_id',
     foreignField: 'car',
     justOne: false
 });
 
 module.exports = mongoose.model('Car', carSchema);
-
-const mongoose = require('mongoose');
-
-// const carSchema = new mongoose.Schema({
-//   make: { type: String, required: true },
-//   model: { type: String, required: true },
-//   year: { type: Number, required: true },
-//   rentalPrice: { type: Number, required: true },
-//   available: { type: Boolean, default: true },
-//   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user who created the car
-// }, { collection: 'cars' });
-
-// const Car = mongoose.model('Car', carSchema);
-// module.exports = Car;
