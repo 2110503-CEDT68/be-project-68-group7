@@ -9,6 +9,7 @@ const {xss}=require('express-xss-sanitizer');
 const rateLimit=require('express-rate-limit');
 const hpp = require('hpp');
 const cors = require('cors');
+const { swaggerUi, swaggerSpec } = require('./swagger');
 
 
 // Routes
@@ -39,6 +40,9 @@ app.use(xss());                                   // Prevent XSS attacks
 app.use(limiter);                                 // Rate Limiting
 app.use(hpp());                                   // Prevent parameter pollution
 app.use(cookieParser());                          // Cookie parser
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Define routes
 app.use('/api/auth', authRoutes);
