@@ -123,7 +123,7 @@ exports.addBooking = async (req, res, next) => {
 
         // Add provider from car to booking body
         req.body.provider = car.provider;
-        
+
         // Add user to req.body
         req.body.user = req.user.id;
 
@@ -137,6 +137,23 @@ exports.addBooking = async (req, res, next) => {
                 message: `The user with ID ${req.user.id} has already 3 bookings`
             });
         }
+
+        // Calculate total cost
+        const date1 = new Date(req.body.bookingDate);
+        const date2 = new Date(req.body.returnDate);
+
+        // Validation: returnDate must be after bookingDate
+        if (date2 <= date1) {
+            return res.status(400).json({
+                success: false,
+                message: 'Return date must be after booking date'
+            });
+        }
+
+        const diffTime = Math.abs(date2 - date1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        req.body.totalCost = diffDays * car.rentPrice;
 
         const booking = await Booking.create(req.body);
 

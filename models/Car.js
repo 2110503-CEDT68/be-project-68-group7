@@ -49,6 +49,10 @@ const carSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'Provider',
         required: true,
+    },
+    rentPrice: {
+        type: Number,
+        required: [true, 'Please add a rental price per day']
     }
 }, {
     toJSON: { virtuals: true },
