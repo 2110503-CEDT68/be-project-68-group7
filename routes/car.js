@@ -1,29 +1,67 @@
-const express = require('express');
-const {
-    getCars,
-    getCar,
-    createCar,
-    updateCar,
-    deleteCar
-} = require('../controllers/car');
+const mongoose = require('mongoose');
 
-// Include other resource routers
-const bookingRouter = require('./booking');
+const carSchema = new mongoose.Schema({
+    licensePlate: {
+        type: String,
+        required: [true, 'Please add a license plate'],
+        unique: true,
+        trim: true,
+        uppercase: true,
+        maxlength: [15, 'License plate cannot be more than 15 characters']
+    },
+    brand: {
+        type: String,
+        required: [true, 'Please add a brand (e.g., Toyota, Tesla)'],
+        trim: true
+    },
+    model: {
+        type: String,
+        required: [true, 'Please add a model (e.g., Camry, Model 3)'],
+        trim: true
+    },
+    year: {
+        type: Number,
+        required: [true, 'Please add the manufacturing year'],
+        min: [1980, 'Year must be 1980 or later'],
+        max: [new Date().getFullYear() + 1, 'Year cannot be in the far future']
+    },
+    color: {
+        type: String,
+        required: [true, 'Please add the car color'],
+        trim: true,
+        maxlength: [30, 'Color cannot be more than 30 characters']
+    },
+    transmission: {
+        type: String,
+        enum: ['Automatic', 'Manual'],
+        required: [true, 'Please specify the transmission type']
+    },
+    fuelType: {
+        type: String,
+        enum: ['Gasoline', 'Diesel', 'Electric', 'Hybrid'],
+        default: 'Gasoline'
+    },
+    available: {
+        type: Boolean,
+        default: true
+    },
+    provider: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Provider',
+        required: true,
+    }
+}, {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+    timestamps: true
+});
 
-const router = express.Router();
+// Virtual populate to see all bookings for this specific car
+carSchema.virtual('bookings', {
+    ref: 'Booking',
+    localField: '_id',
+    foreignField: 'car',
+    justOne: false
+});
 
-const { protect, authorize } = require('../middleware/auth');
-
-// Re-route into other resource routers
-router.use('/:carId/bookings', bookingRouter);
-
-router.route('/')
-    .get(getCars)
-    .post(protect, authorize('admin', 'car-owner'), createCar);
-
-router.route('/:id')
-    .get(getCar)
-    .put(protect, authorize('admin', 'car-owner'), updateCar)
-    .delete(protect, authorize('admin', 'car-owner'), deleteCar);
-
-module.exports = router;
+module.exports = mongoose.model('Car', carSchema);

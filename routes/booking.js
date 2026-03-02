@@ -1,23 +1,31 @@
-const express = require('express');
-const {
-    getBookings,
-    getBooking,
-    addBooking,
-    updateBooking,
-    deleteBooking
-} = require('../controllers/booking');
+const mongoose = require('mongoose');
 
-const router = express.Router({ mergeParams: true });
+const BookingSchema = new mongoose.Schema({
+    date: {
+        type: Date,
+        required: [true, 'Please add a date']
+    },
+    user: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    car: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Car',
+        required: true
+    },
+    provider: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Provider',
+        required: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+}, {
+    timestamps: true
+});
 
-const { protect, authorize } = require('../middleware/auth');
-
-router.route('/')
-    .get(protect, getBookings)
-    .post(protect, authorize('car-renter', 'admin'), addBooking);
-
-router.route('/:id')
-    .get(protect, getBooking)
-    .put(protect, authorize('car-renter', 'admin'), updateBooking)
-    .delete(protect, authorize('car-renter', 'admin'), deleteBooking);
-
-module.exports = router;
+module.exports = mongoose.model('Booking', BookingSchema);
