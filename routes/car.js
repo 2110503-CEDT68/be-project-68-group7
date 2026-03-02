@@ -82,7 +82,7 @@ router.use('/:carId/bookings', bookingRouter);
  */
 router.route('/')
     .get(getCars)
-    .post(protect, authorize('admin', 'car-owner'), createCar);
+    .post(protect, authorize('admin'), createCar);
 
 /**
  * @swagger
@@ -153,7 +153,7 @@ router.route('/')
  */
 router.route('/:id')
     .get(getCar)
-    .put(protect, authorize('admin', 'car-owner'), updateCar)
-    .delete(protect, authorize('admin', 'car-owner'), deleteCar);
+    .put(protect, authorize('admin'), updateCar)
+    .delete(protect, authorize('admin'), deleteCar);
 
-module.exports = mongoose.model('Car', carSchema);
+module.exports = router;

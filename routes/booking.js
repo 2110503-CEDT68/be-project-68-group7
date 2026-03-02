@@ -104,7 +104,7 @@ const { protect, authorize } = require('../middleware/auth');
  */
 router.route('/')
     .get(protect, getBookings)
-    .post(protect, authorize('car-renter', 'admin'), addBooking);
+    .post(protect, authorize('user', 'admin'), addBooking);
 
 /**
  * @swagger
@@ -194,7 +194,7 @@ router.route('/')
  */
 router.route('/:id')
     .get(protect, getBooking)
-    .put(protect, authorize('car-renter', 'admin'), updateBooking)
-    .delete(protect, authorize('car-renter', 'admin'), deleteBooking);
+    .put(protect, authorize('user', 'admin'), updateBooking)
+    .delete(protect, authorize('user', 'admin'), deleteBooking);
 
 module.exports = mongoose.model('Booking', BookingSchema);
