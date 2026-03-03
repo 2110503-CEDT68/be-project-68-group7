@@ -1,32 +1,3 @@
-const mongoose = require('mongoose');
-
-const BookingSchema = new mongoose.Schema({
-    date: {
-        type: Date,
-        required: [true, 'Please add a date']
-    },
-    user: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    car: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Car',
-        required: true
-    },
-    provider: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Provider',
-        required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-}, {
-    timestamps: true
-});
 const express = require('express');
 const {
     getBookings,
@@ -197,4 +168,4 @@ router.route('/:id')
     .put(protect, authorize('user', 'admin'), updateBooking)
     .delete(protect, authorize('user', 'admin'), deleteBooking);
 
-module.exports = mongoose.model('Booking', BookingSchema);
+module.exports = router;
