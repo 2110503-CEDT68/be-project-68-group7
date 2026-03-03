@@ -49,13 +49,13 @@ const { protect, authorize } = require('../middleware/auth');
  *             required:
  *               - name
  *               - address
- *               - telephone
+ *               - tel
  *             properties:
  *               name:
  *                 type: string
  *               address:
  *                 type: string
- *               telephone:
+ *               tel:
  *                 type: string
  *     responses:
  *       201:

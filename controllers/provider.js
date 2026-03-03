@@ -1,5 +1,6 @@
 const Provider = require('../models/Provider');
 const Booking = require('../models/Booking');
+const Car = require('../models/Car');
 
 // @desc    Get all providers
 // @route   GET /api/v1/providers
@@ -78,9 +79,9 @@ exports.getProvider = async (req, res, next) => {
         const provider = await Provider.findById(req.params.id).populate('bookings');
 
         if (!provider) {
-            return res.status(404).json({ 
-                success: false, 
-                message: `Provider not found with id of ${req.params.id}` 
+            return res.status(404).json({
+                success: false,
+                message: `Provider not found with id of ${req.params.id}`
             });
         }
 
@@ -113,9 +114,9 @@ exports.updateProvider = async (req, res, next) => {
         });
 
         if (!provider) {
-            return res.status(404).json({ 
-                success: false, 
-                message: `Provider not found with id of ${req.params.id}` 
+            return res.status(404).json({
+                success: false,
+                message: `Provider not found with id of ${req.params.id}`
             });
         }
 
@@ -133,15 +134,16 @@ exports.deleteProvider = async (req, res, next) => {
         const provider = await Provider.findById(req.params.id);
 
         if (!provider) {
-            return res.status(404).json({ 
-                success: false, 
-                message: `Provider not found with id of ${req.params.id}` 
+            return res.status(404).json({
+                success: false,
+                message: `Provider not found with id of ${req.params.id}`
             });
         }
 
-        // Cascade delete: ลบการจอง (Bookings) ทั้งหมดที่เกี่ยวข้องกับบริษัทรถเช่านี้
+        // Cascade delete: ลบการจอง (Bookings) และ รถ (Cars) ทั้งหมดที่เกี่ยวข้องกับบริษัทรถเช่านี้
+        await Car.deleteMany({ provider: req.params.id });
         await Booking.deleteMany({ provider: req.params.id });
-        
+
         // ลบผู้ให้บริการ
         await provider.deleteOne();
 
